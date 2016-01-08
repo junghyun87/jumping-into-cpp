@@ -11,7 +11,7 @@
 #include <string>
 using namespace std;
 
-void example(){
+void example_ch3(){
     int thisisanum;
     cout <<"enter a num:";
     cin >> thisisanum;
@@ -56,6 +56,6 @@ void divided(){
     cout << num1/num2 << endl;
 }
 
-int main(){
-    divided();
-}
+//int main(){
+//    divided();
+//}

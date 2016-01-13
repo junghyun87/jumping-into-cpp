@@ -23,3 +23,20 @@ int example_ch5(){
     }
     return 0;
 }
+
+void printMenu(){
+    int select;
+    while(1){
+        cout << "Select one" << endl;
+        cout << "menu 1" << endl;
+        cout << "menu 2" << endl;
+        cout << "menu 3" << endl;
+        cout << "exit 0" <<endl;
+        cout << "choose: ";
+        cin >> select;
+        if (select == 0){
+            break;
+        }
+        
+    }
+}

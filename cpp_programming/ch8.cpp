@@ -38,7 +38,3 @@ void ex1(){
     cout << "# of Heads: " << numOfHeads << ", # of tails: " << numOfTails << endl;
     
 }
-
-int main(){
-    ex1();
-}

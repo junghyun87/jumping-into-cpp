@@ -114,7 +114,3 @@ void ex2_ch18(){
         showScores(v_scores);
     }
 }
-
-int main(){
-    ex2_ch18();
-}

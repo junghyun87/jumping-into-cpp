@@ -52,6 +52,3 @@ void getLyrics_ch7(){
     cout << "Go to the store and buy some more, 99 bottles of beer on the wall." <<endl;
 }
 
-int main(){
-    printMenu_ch7();
-}

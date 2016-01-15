@@ -28,7 +28,7 @@ int printScores(fstream &file){
     return 0;
 }
 
-int main(){
+int ex1_ch28(){
     fstream file(
                  "/Users/junghyunkwon/Documents/cpp_programming/cpp_programming/highscores2.txt",
                  ios::binary|ios::in|ios::out
@@ -90,5 +90,7 @@ int main(){
     }
     
     printScores(file);
+    
+    return 0;
     
 }

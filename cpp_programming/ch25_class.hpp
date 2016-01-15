@@ -12,3 +12,23 @@
 #include <stdio.h>
 
 #endif /* ch25_class_hpp */
+namespace webeng{
+class vectorOfInt{
+public:
+    vectorOfInt();
+    ~vectorOfInt();
+    vectorOfInt(int size);
+    int get(int index);
+    void set(int index, int value);
+    void pushback(int ele);
+    void pushfront(int ele);
+    vectorOfInt& operator=(const vectorOfInt& other);
+    vectorOfInt(const vectorOfInt& other);
+    
+private:
+    int *vector;
+    int size;
+    int currentPointer;
+    
+};
+}

@@ -10,25 +10,7 @@
 
 #include <iostream>
 using namespace std;
-
-class vectorOfInt{
-public:
-    vectorOfInt();
-    ~vectorOfInt();
-    vectorOfInt(int size);
-    int get(int index);
-    void set(int index, int value);
-    void pushback(int ele);
-    void pushfront(int ele);
-    vectorOfInt& operator=(const vectorOfInt& other);
-    vectorOfInt(const vectorOfInt& other);
-
-private:
-    int *vector;
-    int size;
-    int currentPointer;
-
-};
+using namespace webeng;
 
 vectorOfInt::vectorOfInt(){
     vector = new int[32];
@@ -125,24 +107,24 @@ vectorOfInt::vectorOfInt(const vectorOfInt& other)
 
 
 
-int main(){
-    vectorOfInt v1;
-    vectorOfInt *v2 = new vectorOfInt;
-    vectorOfInt v3(15);
-    v1.pushback(1);
-    v1.pushfront(3);
-    cout << v1.get(1)<<endl; //1
-    v2->pushback(10);
-    v2->pushfront(20);
-    cout << v2->get(1)<<endl; //10
-    v3.pushfront(0);
-    v3.pushback(5);
-    cout << v3.get(1)<<endl; //5
-    vectorOfInt v4;
-    v4 = v3;
-    cout << v4.get(1)<<endl; //5
-    vectorOfInt v5(v1);
-    cout << v5.get(1) << endl; //1
-}
+//int main(){
+//    vectorOfInt v1;
+//    vectorOfInt *v2 = new vectorOfInt;
+//    vectorOfInt v3(15);
+//    v1.pushback(1);
+//    v1.pushfront(3);
+//    cout << v1.get(1)<<endl; //1
+//    v2->pushback(10);
+//    v2->pushfront(20);
+//    cout << v2->get(1)<<endl; //10
+//    v3.pushfront(0);
+//    v3.pushback(5);
+//    cout << v3.get(1)<<endl; //5
+//    vectorOfInt v4;
+//    v4 = v3;
+//    cout << v4.get(1)<<endl; //5
+//    vectorOfInt v5(v1);
+//    cout << v5.get(1) << endl; //1
+//}
 
 

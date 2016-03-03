@@ -57,3 +57,39 @@ int main()
 }
 ```
 srand는 시작시 한번만 호출한다. 여러번 호출하면 임의성이 떨어짐. 예를들어 time(NULL)을 시드로 srand를 계속호출하면 난수는 시간적 연관이 있는 수들을 바탕으로 생성되기 때문에 임의성이 떨어짐.
+
+## Chapter 10
+
+## Chapter 11
+``` cpp
+struct PlayerInfo
+{
+  int skill_level;
+  string name;
+}; //semicolon 빼먹지 말기
+```
+
+## Chapter 13
+``` cpp
+int *p_points_to_integer;
+int* p_points_to_integer; //위 둘은 같은 선언
+
+//Using pointer
+int x =5;
+int *p_pointer_to_integer = &x;
+*p_pointer_to_integer=3;
+
+//NULL로 초기화하기
+int *p_int = NULL;
+
+```
+
+### Reference
+레퍼런스는 포인트의 간소화 버전
+레퍼런스는 반드시 초기화 해야 한다. (언제나 유효한 메모리만을 가리켜야 한다.)
+레퍼런스는 NULL을 가리킬 수 없음.
+레퍼런스는 초기화되면 자신이 가리키는 메모리를 변경할 수 없음.
+``` cpp
+int x = 5;
+int &ref = x;
+```

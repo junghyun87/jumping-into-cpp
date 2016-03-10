@@ -440,11 +440,12 @@ public:
 private:
 	ChessPiece _board[ 8 ][ 8 ];
 	string _whose_move;
+    string _var2;
 };
 
 //초기화 리스트 사용
 ChessBoard::ChessBoard()
-     : _whose_move("white"){
+     : _whose_move("white"),_var2("some string"){
      
 }
 ```
@@ -477,4 +478,111 @@ ChessBoard::ChessBoard()
 * 객체 복사를 하면 안되는 경우 사용
 * 복사 생성자와 대입 연산자를 private에서 선언만 한다. 그래서 클래스 밖에서 사용할 경우 컴파일 에러가 발생하게 한다. public로 선언하면 컴파일에러는 발생하지않고 링크에러가 발생한다. 링크에러의 경우 어디에서 발생했는지 알기가 어렵다.
 
+## Chapter 26. 상속과 다형성
+### C++의 상속
+``` cpp
+class ship: public Drawble
+{
+};
+//가상(virtual)으로 설정. 서브클래스가 재정의 할 수 있다는 것을 알림.
+class Drawable
+{
+public:
+  virtual void draw();
+}
 
+//순수 가상(pure virtual). 서브클래스는 반드시 구현해야 함. 0으로 설정. 메소드가 존재하지 않는다는 것을 뜻함. 순수 가상 함수가 있는 객체는 만들 수 없음.
+class Drawable
+{
+public:
+  virtual void draw()=0;
+}
+class ship: public Drawble
+{
+public:
+  virtual draw(); //서브클래스는 0 생략
+};
+Ship::draw(){
+}
+
+//Drawable 인터페이스를 구현하는 다양한 클래스를 한 벡터에 담을 수 있음 (다형성)
+//클래스 객체마다 필드가 달라 사이즈가 다르기 때문에 객체 자체를 벡터에 넣지 않고 객체의 포인터를 넣는다. 포인터는 사이즈가 같으니까.
+vector<Drawable*> drawables;
+```
+
+* 다형성 - "형태가 많다." 인터페이스는 하나인데 그것을 구현한 클래스는 많을 수 있다. 다형성을 제공한다는 것은 공통 인터페이스를 구현한 다양한 형태의 클래스의 처리를 지원하는 것
+
+### 상속, 객체 생성, 객체 파괴
+* 슈퍼클래스에 담긴 비디폴트 생성자 호출하고 싶을 때, 초기화 리스트에 슈퍼클래스 이름을 포함한다.
+* 슈퍼클래스 생성자 호출은 초기화 리스트의 클래스 필드보다 먼저 등장해야 함
+
+``` cpp
+class FooSuperclass
+{
+public:
+  FooSuperClass(const string& val);
+};
+class Foo: FooSuperclass
+{
+public:
+  Foo(): FooSuperclass("arg"){}
+};
+```
+
+### 다형성과 객체 파괴
+* 슈퍼클래스의 메소드를 virtual로 설정할 때는 파괴자도 함께 virtual로 설정해야 함
+* 인터페이스 타입을 가진 변수로 그 인터페이스를 구현한 다양한 클래스 객체를 받아 인터페이스 함수를 호출할 수 있다(다형성).하지만 인터페이스를 가리키는 포인터에 대해 delete를 하면 인터페이스가 그 객체 고유의 파괴자를 찾지 못한다. 그래서 객체가 할당한 메모리를 해제할 수 없게 된다. 이를 해결하기 위해 인터페이스의 파괴자에 virtual이라고 선언해서 인터페이스 포인터에 대해 delete가 호출되면 그 인터페이스를 오버라이드하는 객체의 파괴자를 찾아야 한다고 알려준다.
+
+### 쪼개기 문제
+``` cpp
+Subclass sub;
+Superclass super = sub;
+```
+* 위 코드를 c++에서 지원하기는 하지만 문제 발생할 수 있어서 사용하지 않는다.
+* 아래 처럼 슈퍼 클래스의 포인터에 서브 클래스의 주소를 할당한다.
+
+``` cpp
+Superclass *super = &sub;
+```
+
+### 클래스 차원의 데이터
+* static 멤버, static 메소드
+ * 클래스의 모든 객체가 공유한다. 
+ * 객체 인스턴스 없이 사용될 수 있음.
+ * static 메소드는 static 데이터에만 접근 가능함
+
+```cpp
+class Node
+{
+	public:
+		Node();
+		static int _getNextSerialNumber();
+	private:
+		static int _next_serial_number;
+		int _serial_number;
+
+};
+
+int Node::_next_serial_number=0;
+
+Node::Node()
+	:_serial_number(_getNextSerialNumber()){} //초기화리스트에 함수를 넣어도 된다
+int Node::_getNextSerialNumber(){
+	cout << _next_serial_number;
+	return _next_serial_number++;
+}
+
+int main(){
+	Node node;
+	Node::_getNextSerialNumber(); //클래스 이름으로 static 메서드접근
+	Node node2;
+	return 0;
+}
+
+```
+
+### 다형성은 어떻게 구현되는가?
+* 슈퍼클래스 변수로 어떻게 서브클래스에 구현되어 있는 인터페이스 함수를 찾는가?
+ * 인터페이스 함수를 구현하는 객체마다 virtual table(vtable)에 접근할 수 있는 포인터가 있다. vtable에는 구현한 함수 주소들이 있다.
+
+## Chapter 27. 네임스페이스

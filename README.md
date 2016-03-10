@@ -586,3 +586,7 @@ int main(){
  * 인터페이스 함수를 구현하는 객체마다 virtual table(vtable)에 접근할 수 있는 포인터가 있다. vtable에는 구현한 함수 주소들이 있다.
 
 ## Chapter 27. 네임스페이스
+
+## Chapter 28. 파일 I/O
+
+## Chapter 29. C++ 템플릿

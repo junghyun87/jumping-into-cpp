@@ -586,7 +586,151 @@ int main(){
  * 인터페이스 함수를 구현하는 객체마다 virtual table(vtable)에 접근할 수 있는 포인터가 있다. vtable에는 구현한 함수 주소들이 있다.
 
 ## Chapter 27. 네임스페이스
+``` cpp
+namespace cprogramming
+{
+  int x;
+} //세미콜론 없음
+//사용방법
+cprogramming::x
+
+//네임스페이스 중첩
+namespace com{
+namespace cprogramming{
+  int x;
+}
+}
+//사용방법
+com::cprogramming::x
+
+//using 선언문(using namespace)을 사용하면 namespace안써도 사용할 수 있음.
+uisng namespace com::cprogramming;
+cout << x
+
+
+```
+
+* 네임스페이스는 파일 여러 군데 써도 됨. e.g., 헤더파일, 소스 파일
+* using 선언문은 헤더파일에 두면 안됨. 그 헤더 파일을 사용하는 모든 파일에서 이름 충돌이 일어날수 있기 때문
+* .h로 끝나는 표준 라이브러리는 using 선언문을 포함하고 있기 때문에 소스파일에 using 선언문 안써도 됨.
+* .h없는 헤더 파일 사용을 권장. 가장 최신 버전의 C++를 사용할 수 있음
 
 ## Chapter 28. 파일 I/O
+ifstream(읽기), ofstream(쓰기), fstream(읽고 쓰기)
+fstream 헤더파일 사용
+
+``` cpp
+ifstream file_reader("myfile.txt");
+if(!file_reader.is_open()){ //파일 제대로 열었는지 확인
+
+}
+if(file_reader >> number){ //return 값이 istream object. 호출 결과를 알 수 있음
+
+}
+
+ofstream a_file("text.txt", ios::app|ios::binary);
+```
+
+* 파일에는 두 가지 위치 존재. 프로그램이 읽어 들일 다음 위치, 프로그램이 쓸 다음 위치
+* tellg, tellp - 현재 위치를 가져온다.
+* seekp, seekg - 파일 내 위치를 새로 설정. streampos 오브젝트 리턴.
+
+### 명령행 인수 받기
+``` cpp
+//argc는 인수 갯수
+//argv[0]은 프로그램 이름.
+int main(int argc, char *argv[]){
+
+}
+
+```
+### 바이너리 파일 다루기
+* 쓸 데이터의 포인터 또는 배열이름을 char* 로 변환해야 한다. 바이너리 파일은 한 바이트씩 읽고 쓰므로 char*로 연속된 바이트를 가리킬 수 있어서.
+
+* 타입캐스팅의 종류
+ * static_cast - 서로 관련된 다른 타입으로 변환. double -> int. 
+ * reinterpret_cast - 타입 체계 무시하고 연속된 바이트를 전혀 다른 타입으로 해석
+
+``` cpp
+//타입캐스팅 종류
+static_cast<int>(3.4);
+int x[10];
+reinterpret_cast<char*>(x);
+
+//바이너리 I/O의 예
+int nums[10];
+for(int i=0;i<10;i++){
+  nums[i] = i;
+}
+a_file.write(reinterpret_cast<char*>(nums), sizeof(nums));
+```
+* sizeof(배열이름)은 전체 배열의 바이트수를 리턴하지만 sizeof(포인터)는 포인터의 바이트수(4)를 리턴한다. sizeof(*포인터)는 포인터가 가리키는 변수의 바이트 수를 리턴. 
+
+``` cpp
+//write 함수는 메모리 블록을 가리키는 포인터, 파일 쓸 떄 필요한 메모리 크기를 arguments로 넘긴다.
+//구조체 저장. 주소를 넘겨주기 위해 레퍼런스 사용
+a_file.write(reinterpret_cast<char*>(&rec), sizeof(rec));
+```
+
+### 기본 데이터 타입이 아닌 확장 타입이 구조체에 있을 때, 파일로 쓰기
+* string 클래스의 경우 .c_str()를 써서 c 스타일의 스트링으로 바꾼다. c 스타일 스트링은 마지막에 널문자가 있으므로 문자열의 길이 +1을 write함수에 넘겨준다.
+
+### 파일에서 읽기
+* read 메소드 사용. 데이터를 쓸 변수의 주소(배열이름)과 읽을 데이터 양을 arugments로 전달
+
+``` cpp
+int x = 3;
+a_file.read(reinterpret_cast<char*>(&x), sizeof(x));
+```
+
+* 문자열 읽을 떄는 size 먼저 읽고, size만큼의 char를 메모리할당한다음 읽는다. string(p_str_buf);로 문자열로 변환
 
 ## Chapter 29. C++ 템플릿
+### 템플릿 함수
+``` cpp
+//template: 키워드
+//typename T : 템플릿 파라미터
+//typename : 키워드
+//T: 파라미터 이름
+template <typename T>
+T triangleArea (T base, T height)
+{
+  return base * height *.5;
+}
+
+//사용
+//꺽쇠안에 T에 제공할 특정 타입 입력
+triangle<double>(.5,.5);
+```
+#### 타입유추
+* 컴파일러가 인수의 타입으로 템플릿 파라미터 타입을 유추할 수 있어서 꺽쇠 안에 타입 안써도 됨.
+
+#### 덕 타이핑
+* 템플릿 타입이 '오리처럼 보이고, 오리처럼 걸으며, 오리처럼 소리낸다면', 템플릿은 그 타입을 오리처럼 다룬다는 의미
+
+### 템플릿 클래스
+``` cpp
+//클래스 앞에 템플릿 선언. 템플릿 파라미터는 꺽쇠 안에 여러개 쓸 수 있음
+template<typename T> class ArrayWrapper
+{
+public:
+  ArrayWrapper(int size);
+private:
+  T *_p_mem;
+};
+
+//함수 정의 앞 템플릿 선언.
+//함수이름 앞에 템플릿클래스 일부분임을 알려주기 위해 템플릿(ArrayWrapper<T>)을 포함한다.
+template <typename T>
+ArrayWrapper<T>::ArrayWrapper (int size):_p_mem(new T[size])
+{}
+
+//사용
+ArrayWrapper<int> vec;
+vec.size(); //템플릿 함수에서의 사용과 달리 템플릿 파라미터 제공안해도 됨.
+```
+
+#### 템플릿과 헤더파일
+* 템플릿 클래스를 만들 때는 모든 템플릿 정의를 헤더 파일에 두는 방식이 가장 쉽다.
+* 템플릿 파일이라는 것을 분명히 알려주기 위해 .h 대신 .hxx를 추천한다.
+

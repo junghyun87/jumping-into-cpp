@@ -616,74 +616,209 @@ cout << x
 * .h없는 헤더 파일 사용을 권장. 가장 최신 버전의 C++를 사용할 수 있음
 
 ## Chapter 28. 파일 I/O
+### 파일 I/O 기초
+
 ifstream(읽기), ofstream(쓰기), fstream(읽고 쓰기)
 fstream 헤더파일 사용
 
 ``` cpp
 ifstream file_reader("myfile.txt");
-if(!file_reader.is_open()){ //파일 제대로 열었는지 확인
-
+//is_open(): 파일 제대로 열었는지 확인
+if(!file_reader.is_open()){
+	cout << "Could not open the file" << '\n';
 }
-if(file_reader >> number){ //return 값이 istream object. 호출 결과를 알 수 있음
+//>>의 return 값이 istream object. 호출 결과를 알 수 있음
+//istream object가 boolean으로 conversion됨 (http://stackoverflow.com/questions/8117566/why-istream-object-can-be-used-as-a-bool-expression)
+if(file_reader >> number){
+	cout << "The value is : " << number;
+}
+```
 
+#### 파일의 끝
+
+``` cpp
+//istream object가 boolean으로 conversion됨. 파일 끝(EOF)나 파일 읽기가 Fail했을 경우에 return된 istream object가 false로 conversion 됨.
+//>>의 return value (http://www.cplusplus.com/reference/istream/istream/operator%3E%3E/)
+int score;
+if(! file_reader >> score )
+{
+  //eof나 fail 발생
+  break;
 }
 
+```
+
+#### 파일 쓰기
+``` cpp
+ofstream file_writer("highscores.txt");
+if(!file_writer.is_open())
+{
+  cout << "cout not open file"<<endl;
+  return 0;
+}
+for(int i=0;i<10;i++){
+  file_writer << 10-i << '\n';
+}
+
+```
+
+#### 새로운 파일 만들기
+* ofstream은 해당팡리이 존재하지 않으면 새로 만들고, 존재하면 덮어 쓰는 것이 디폴트. 옵션 지정해서 덧붙여쓰기, 바이너리 연산 허용 등 설정 가능
+
+``` cpp
+//파일끝에 덧붙이기, 바이너리 데이터로 작성
 ofstream a_file("text.txt", ios::app|ios::binary);
 ```
 
+### 파일의 위치
+
 * 파일에는 두 가지 위치 존재. 프로그램이 읽어 들일 다음 위치, 프로그램이 쓸 다음 위치
-* tellg, tellp - 현재 위치를 가져온다.
-* seekp, seekg - 파일 내 위치를 새로 설정. streampos 오브젝트 리턴.
+* tellg, tellp - 현재 위치를 제공. streampos 오브젝트 리턴.
+``` cpp
+streampos pos = file_reader.tellg();
+```
+
+* seekg, seekp- 파일 내 위치를 새로 설정.
+* 위치에 설정할 수 있는 플래그
+  * ios_base::beg - 시작부터 탐색
+  * ios_base::cur - 현재 위치부터 탐색
+  * ios_base::end - 끝부터 탐색
+
+``` cpp
+file_writer.seekp(0,ios_base::beg);
+```
+
+#### 파일 읽고 쓰기
+* fstream 이용
+
+``` cpp
+#include <fstream>
+...
+//in, out 플래그 세팅
+fstream file("highscroes.txt", ios::in||ios::out);
+...
+//fail이 참이고, eof가 아니면, 일부 입력이 잘못되었다는 의미
+if(file.fail() && !file.eof()){
+  cout << "Bad score/read--exiting";
+  return 0;
+}
+//clear를 호출해서 error bit를 클리어하지 않으면, eof를 만나도 파일에 쓸 수 없음
+file.clear();
+
+//파일 위치, 파일 읽고/쓰기 같이 사용한 예제
+fstream file("highscroes.txt", ios::in||ios::out);
+streampos pre_score_pos = file.tellg();
+...
+file.clear();
+file.seekg(pre_score_pos);
+vector<int> scores;
+while(file >> cur_score){
+  scores.push_back(cur_score);
+}
+...
+file.clear();
+file.seekp(pre_score_pos);
+//streampos(0): 파일의 시작 위치
+if(pre_score_pos!=streampos(0))
+{
+  file << endl;
+}
+file << new_high_score << endl;
+```
+
 
 ### 명령행 인수 받기
 ``` cpp
-//argc는 인수 갯수
+//argc는 인수 갯수+1 (프로그램 이름)
 //argv[0]은 프로그램 이름.
 int main(int argc, char *argv[]){
 
 }
 
 ```
-### 바이너리 파일 다루기
-* 쓸 데이터의 포인터 또는 배열이름을 char* 로 변환해야 한다. 바이너리 파일은 한 바이트씩 읽고 쓰므로 char*로 연속된 바이트를 가리킬 수 있어서.
 
+* 인수가 숫자일 경우 atoi(argv[1]) 처럼 정수로 변환한다
+
+### 바이너리 파일 I/O
+#### 바이너리 파일에 쓰기
+``` cpp
+ofstream a_file("test.bin",ios::binary);
+```
+
+* 쓸 데이터의 포인터 또는 배열이름을 char\* 로 변환해야 한다. 바이너리 파일은 한 바이트씩 읽고 쓰므로 char\*로 연속된 바이트를 가리킬 수 있어서.
 * 타입캐스팅의 종류
  * static_cast - 서로 관련된 다른 타입으로 변환. double -> int. 
  * reinterpret_cast - 타입 체계 무시하고 연속된 바이트를 전혀 다른 타입으로 해석
 
 ``` cpp
 //타입캐스팅 종류
-static_cast<int>(3.4);
+int a = static_cast<int>(3.4);
 int x[10];
-reinterpret_cast<char*>(x);
+char *p_c = reinterpret_cast<char*>(x);
 
 //바이너리 I/O의 예
 int nums[10];
 for(int i=0;i<10;i++){
   nums[i] = i;
 }
+//write 함수는 메모리 블록을 가리키는 포인터, 파일 쓸 때 필요한 메모리 크기를 arguments로 넘긴다.
 a_file.write(reinterpret_cast<char*>(nums), sizeof(nums));
 ```
 * sizeof(배열이름)은 전체 배열의 바이트수를 리턴하지만 sizeof(포인터)는 포인터의 바이트수(4)를 리턴한다. sizeof(*포인터)는 포인터가 가리키는 변수의 바이트 수를 리턴. 
 
 ``` cpp
-//write 함수는 메모리 블록을 가리키는 포인터, 파일 쓸 떄 필요한 메모리 크기를 arguments로 넘긴다.
-//구조체 저장. 주소를 넘겨주기 위해 레퍼런스 사용
+//구조체 변수 내용을 파일에 쓸 때는 구조체 변수의 주소를 넘겨준다.
 a_file.write(reinterpret_cast<char*>(&rec), sizeof(rec));
 ```
 
-### 기본 데이터 타입이 아닌 확장 타입이 구조체에 있을 때, 파일로 쓰기
+#### 기본 데이터 타입이 아닌 확장 타입(클래스)이 구조체에 있을 때 파일에 쓰기
 * string 클래스의 경우 .c_str()를 써서 c 스타일의 스트링으로 바꾼다. c 스타일 스트링은 마지막에 널문자가 있으므로 문자열의 길이 +1을 write함수에 넘겨준다.
+* c_str()은 문자열의 주소를 리턴
 
-### 파일에서 읽기
+``` cpp
+PlayerRecord rec;
+rec.name = "John";
+int len = rec.name.length();
+a_file.write(reinterpret_cast<char *>(&len), sizeof(len));
+a_file.write(rec.name.c_str(),len+1);
+```
+
+#### 바이너리 파일에서 읽기
 * read 메소드 사용. 데이터를 쓸 변수의 주소(배열이름)과 읽을 데이터 양을 arugments로 전달
 
 ``` cpp
 int x = 3;
-a_file.read(reinterpret_cast<char*>(&x), sizeof(x));
+if(!a_file.read(reinterpret_cast<char*>(&x), sizeof(x)))
+{
+  //오류처리
+}
 ```
 
 * 문자열 읽을 떄는 size 먼저 읽고, size만큼의 char를 메모리할당한다음 읽는다. string(p_str_buf);로 문자열로 변환
+
+``` cpp
+int str_len;
+
+if( !a_file.read(
+  reinterpret_cast<char*>(&str_len), sizeof(str_len)))
+{
+    //오류처리
+}
+//너무 많은 메모리를 할당하지 않도록 한다
+else if(str_len > 0 && str_len < 10000)
+{
+  char *p_str_buf = new char[str_len];
+  if(!a_file.read(p_str_buf, str_len+1))
+  {
+    //오류 처리
+  }
+  if(p_str_buf[str_len] == 0)
+  {
+    in_rec.name = string(p_str_buf);
+  }
+  delete[] p_str_buf;
+}
+```
 
 ## Chapter 29. C++ 템플릿
 ### 템플릿 함수
